@@ -23,7 +23,7 @@ def test_explanation_single_model_regression():
         else:
             cols_to_test.append(col)
 
-    gbm = H2OGradientBoostingEstimator(seed=1234)
+    gbm = H2OGradientBoostingEstimator(seed=1234, model_id="my_awesome_model")
     gbm.train(y=y, training_frame=train)
 
     # test shap summary
@@ -49,7 +49,10 @@ def test_explanation_single_model_regression():
 
     # test learning curve
     assert isinstance(gbm.learning_curve_plot(), matplotlib.pyplot.Figure)
-    matplotlib.pyplot.close()
+    for metric in ["auto", "deviance", "rmse"]:
+        assert isinstance(gbm.learning_curve_plot(metric=metric.upper()), matplotlib.pyplot.Figure)
+        assert isinstance(gbm.learning_curve_plot(metric), matplotlib.pyplot.Figure)
+    matplotlib.pyplot.close("all")
 
     # test explain
     assert isinstance(gbm.explain(train, render=False), H2OExplanation)
@@ -111,6 +114,11 @@ def test_explanation_list_of_models_regression():
     models = [h2o.get_model(m[0]) for m in
               aml.leaderboard["model_id"].as_data_frame(use_pandas=False, header=False)]
 
+    # Test named models as well
+    gbm = H2OGradientBoostingEstimator(model_id="my_awesome_model")
+    gbm.train(y=y, training_frame=train)
+    models += [gbm]
+
     # test variable importance heatmap plot
     assert isinstance(h2o.varimp_heatmap(models), matplotlib.pyplot.Figure)
     matplotlib.pyplot.close()
@@ -149,7 +157,7 @@ def test_explanation_single_model_binomial_classification():
         else:
             cols_to_test.append(col)
 
-    gbm = H2OGradientBoostingEstimator(seed=1234)
+    gbm = H2OGradientBoostingEstimator(seed=1234, model_id="my_awesome_model")
     gbm.train(y=y, training_frame=train)
 
     # test shap summary
@@ -235,6 +243,11 @@ def test_explanation_list_of_models_binomial_classification():
     models = [h2o.get_model(m[0]) for m in
               aml.leaderboard["model_id"].as_data_frame(use_pandas=False, header=False)]
 
+    # Test named models as well
+    gbm = H2OGradientBoostingEstimator(model_id="my_awesome_model")
+    gbm.train(y=y, training_frame=train)
+    models += [gbm]
+
     # test variable importance heatmap plot
     assert isinstance(h2o.varimp_heatmap(models), matplotlib.pyplot.Figure)
     matplotlib.pyplot.close()
@@ -273,7 +286,7 @@ def test_explanation_single_model_multinomial_classification():
         else:
             cols_to_test.append(col)
 
-    gbm = H2OGradientBoostingEstimator(seed=1234)
+    gbm = H2OGradientBoostingEstimator(seed=1234, model_id="my_awesome_model")
     gbm.train(y=y, training_frame=train)
 
     # test shap summary
@@ -367,6 +380,10 @@ def test_explanation_list_of_models_multinomial_classification():
     models = [h2o.get_model(m[0]) for m in
               aml.leaderboard["model_id"].as_data_frame(use_pandas=False, header=False)]
 
+    # Test named models as well
+    gbm = H2OGradientBoostingEstimator(model_id="my_awesome_model")
+    gbm.train(y=y, training_frame=train)
+    models += [gbm]
 
     # test variable importance heatmap plot
     assert isinstance(h2o.varimp_heatmap(models), matplotlib.pyplot.Figure)
