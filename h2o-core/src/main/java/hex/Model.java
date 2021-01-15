@@ -116,9 +116,12 @@ public abstract class Model<M extends Model<M,P,O>, P extends Model.Parameters, 
 
   public interface Contributions {
     Frame scoreContributions(Frame frame, Key<Frame> destination_key);
+
     default Frame scoreContributions(Frame frame, Key<Frame> destination_key, Job<Frame> j) {
       return scoreContributions(frame, destination_key);
     }
+
+    Frame scoreContributions(Frame frame, Key<Frame> destination_key, int topN, int topBottomN, boolean abs, Job<Frame> j);
   }
 
   public interface ExemplarMembers {

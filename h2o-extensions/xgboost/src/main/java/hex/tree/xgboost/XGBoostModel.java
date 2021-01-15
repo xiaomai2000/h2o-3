@@ -18,6 +18,7 @@ import hex.tree.PlattScalingHelper;
 import hex.tree.xgboost.predict.*;
 import hex.tree.xgboost.util.PredictConfiguration;
 import hex.util.EffectiveParametersUtils;
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 import water.*;
 import water.codegen.CodeGeneratorPipeline;
@@ -675,6 +676,11 @@ public class XGBoostModel extends Model<XGBoostModel, XGBoostModel.XGBoostParame
             .withPostMapAction(JobUpdatePostMap.forJob(j))
             .doAll(outputNames.length, Vec.T_NUM, adaptFrm)
             .outputFrame(destination_key, outputNames, null);
+  }
+
+  @Override
+  public Frame scoreContributions(Frame frame, Key<Frame> destination_key, int topN, int topBottomN, boolean abs, Job<Frame> j) {
+    throw new NotImplementedException("Sorting of shap for XGBooost is not yet implemented");
   }
 
   @Override
