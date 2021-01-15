@@ -5,6 +5,7 @@ import hex.genmodel.*;
 import hex.genmodel.algos.deeplearning.DeeplearningMojoModel;
 import hex.genmodel.algos.glrm.GlrmMojoModel;
 import hex.genmodel.algos.targetencoder.TargetEncoderMojoModel;
+import hex.genmodel.algos.tree.ContributionComposer;
 import hex.genmodel.algos.tree.SharedTreeMojoModel;
 import hex.genmodel.algos.tree.TreeBackedMojoModel;
 import hex.genmodel.algos.word2vec.WordEmbeddingModel;
@@ -70,6 +71,7 @@ public class EasyPredictModelWrapper implements Serializable {
   private final int glrmIterNumber; // allow user to set GLRM mojo iteration number in constructing x.
 
   private final PredictContributions predictContributions;
+  private final ContributionComposer contributionComposer = new ContributionComposer();
   
   /**
    * Observer interface with methods corresponding to errors during the prediction.
@@ -889,7 +891,9 @@ public class EasyPredictModelWrapper implements Serializable {
   public KeyValue[] predictContributions(RowData data, int topN, int topBottomN, boolean abs) throws PredictException {
     double[] rawData = nanArray(m.nfeatures());
     rawData = fillRawData(data, rawData);
-    return predictContributions.calculateContributions(rawData, topN, topBottomN, abs);
+    float[] contribs = predictContributions.calculateContributions(rawData);
+    String[] contribNames = predictContributions.getContributionNames();
+    return contributionComposer.composeContributions(contribs, contribNames, topN, topBottomN, abs);
   }
 
   /**
