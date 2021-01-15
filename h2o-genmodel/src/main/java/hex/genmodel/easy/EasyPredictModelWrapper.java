@@ -342,7 +342,7 @@ public class EasyPredictModelWrapper implements Serializable {
    * For specific applications (where the kind of model is known and doesn't change), it is recommended to call
    * specific prediction calls like predictBinomial() directly.
    *
-   * @param data A new data point.
+   * @param data A new data point. Unknown or missing column name is treated as a NaN or ignored. Column names are case sensitive.
    * @return The prediction.
    * @throws PredictException
    */
@@ -377,6 +377,9 @@ public class EasyPredictModelWrapper implements Serializable {
     }
   }
 
+  /**
+   * See {@link #predict(RowData, ModelCategory)}
+   */
   public AbstractPrediction predict(RowData data) throws PredictException {
     return predict(data, m.getModelCategory());
   }
@@ -399,7 +402,7 @@ public class EasyPredictModelWrapper implements Serializable {
 
   /**
    * Make a prediction on a new data point using an AutoEncoder model.
-   * @param data A new data point.
+   * @param data A new data point. Unknown or missing column name is treated as a NaN or ignored. Column names are case sensitive.
    * @return The prediction.
    * @throws PredictException
    */
@@ -478,7 +481,7 @@ public class EasyPredictModelWrapper implements Serializable {
 
   /**
    * Make a prediction on a new data point using a Dimension Reduction model (PCA, GLRM)
-   * @param data A new data point.
+   * @param data A new data point. Unknown column name is treated as a NaN. Column names are case sensitive.
    * @return The prediction.
    * @throws PredictException
    */
@@ -534,7 +537,7 @@ public class EasyPredictModelWrapper implements Serializable {
    * words mapped to their respective embeddings.
    * 
    * @param data RawData structure, every key with a String value will be translated to an embedding,
-   *             note: keys only purpose is to link the output embedding to the input word
+   *             note: keys only purpose is to link the output embedding to the input word.
    * @return The prediction
    * @throws PredictException if model is not a WordEmbedding model
    */
@@ -567,9 +570,9 @@ public class EasyPredictModelWrapper implements Serializable {
   }
   
   /**
-   * Make a prediction on a new data point using a Binomial model.
+   * Make a prediction on a new data point using a Anomaly Detection model.
    *
-   * @param data A new data point.
+   * @param data A new data point. Unknown column name is treated as a NaN. Column names are case sensitive.
    * @return The prediction.
    * @throws PredictException
    */
@@ -593,7 +596,7 @@ public class EasyPredictModelWrapper implements Serializable {
   /**
    * Make a prediction on a new data point using a Binomial model.
    *
-   * @param data A new data point.
+   * @param data A new data point. Unknown or missing column name is treated as a NaN or ignored. Column names are case sensitive.
    * @return The prediction.
    * @throws PredictException
    */
@@ -604,7 +607,7 @@ public class EasyPredictModelWrapper implements Serializable {
   /**
    * Make a prediction on a new data point using a Binomial model.
    *
-   * @param data A new data point.
+   * @param data A new data point. Unknown or missing column name is treated as a NaN or ignored. Column names are case sensitive.
    * @param offset An offset for the prediction.
    * @return The prediction.
    * @throws PredictException
@@ -654,7 +657,8 @@ public class EasyPredictModelWrapper implements Serializable {
 
   /**
    * Perform target encoding based on TargetEncoderMojoModel
-   * @param data RowData structure with data for which we want to produce transformations
+   * @param data RowData structure with data for which we want to produce transformations.
+   *             Unknown column name is treated as a NaN. Column names are case sensitive.
    * @return TargetEncoderPrediction with transformations ordered in accordance with corresponding categorical columns' indices in training data
    * @throws PredictException
    */
@@ -685,7 +689,7 @@ public class EasyPredictModelWrapper implements Serializable {
   /**
    * Make a prediction on a new data point using a Multinomial model.
    *
-   * @param data A new data point.
+   * @param data A new data point. Unknown or missing column name is treated as a NaN or ignored. Column names are case sensitive.
    * @return The prediction.
    * @throws PredictException
    */
@@ -696,7 +700,7 @@ public class EasyPredictModelWrapper implements Serializable {
   /**
    * Make a prediction on a new data point using a Multinomial model.
    *
-   * @param data A new data point.
+   * @param data A new data point. Unknown or missing column name is treated as a NaN or ignored. Column names are case sensitive.
    * @param offset Prediction offset
    * @return The prediction.
    * @throws PredictException
@@ -726,7 +730,7 @@ public class EasyPredictModelWrapper implements Serializable {
   /**
    * Make a prediction on a new data point using a Ordinal model.
    *
-   * @param data A new data point.
+   * @param data A new data point. Unknown or missing column name is treated as a NaN or ignored. Column names are case sensitive.
    * @return The prediction.
    * @throws PredictException
    */
@@ -737,7 +741,7 @@ public class EasyPredictModelWrapper implements Serializable {
   /**
    * Make a prediction on a new data point using a Ordinal model.
    *
-   * @param data A new data point.
+   * @param data A new data point. Unknown or missing column name is treated as a NaN or ignored. Column names are case sensitive.
    * @param offset Prediction offset
    * @return The prediction.
    * @throws PredictException
@@ -787,7 +791,7 @@ public class EasyPredictModelWrapper implements Serializable {
   /**
    * Make a prediction on a new data point using a Clustering model.
    *
-   * @param data A new data point.
+   * @param data A new data point. Unknown or missing column name is treated as a NaN or ignored. Column names are case sensitive.
    * @return The prediction.
    * @throws PredictException
    */
@@ -813,7 +817,7 @@ public class EasyPredictModelWrapper implements Serializable {
   /**
    * Make a prediction on a new data point using a Regression model.
    *
-   * @param data A new data point.
+   * @param data A new data point. Unknown or missing column name is treated as a NaN or ignored. Column names are case sensitive.
    * @return The prediction.
    * @throws PredictException
    */
@@ -824,7 +828,7 @@ public class EasyPredictModelWrapper implements Serializable {
   /**
    * Make a prediction on a new data point using a Regression model.
    *
-   * @param data A new data point.
+   * @param data A new data point. Unknown or missing column name is treated as a NaN or ignored. Column names are case sensitive.
    * @param offset Prediction offset
    * @return The prediction.
    * @throws PredictException
@@ -852,6 +856,12 @@ public class EasyPredictModelWrapper implements Serializable {
     return p;
   }
 
+  /**
+   *
+   * @param data A new data point. Unknown or missing column name is treated as a NaN or ignored. Column names are case sensitive.
+   * @return The prediction.
+   * @throws PredictException
+   */
   public KLimeModelPrediction predictKLime(RowData data) throws PredictException {
     double[] preds = preamble(ModelCategory.KLime, data);
 
@@ -862,6 +872,24 @@ public class EasyPredictModelWrapper implements Serializable {
     System.arraycopy(preds, 2, p.reasonCodes, 0, p.reasonCodes.length);
 
     return p;
+  }
+
+  /**
+   * Calculate and sort shapley values.
+   *
+   * @param data A new data point. Unknown or missing column name is treated as a NaN or ignored. Column names are case sensitive.
+   * @param topN Return only #topN highest contributions + bias.
+   * @param topBottomN Return only #topBottomN lowest contributions + bias
+   *                   If topN and topBottomN are defined together then return array of #topN + #topBottomN + bias
+   * @param abs True to compare absolute values of contributions
+   * @return Sorted KeyValue array of contributions of size #topN + #topBottomN + bias
+   *         If topN < 0 || topBottomN < 0 then all descending sorted contributions is returned.
+   * @throws PredictException
+   */
+  public KeyValue[] predictContributions(RowData data, int topN, int topBottomN, boolean abs) throws PredictException {
+    double[] rawData = nanArray(m.nfeatures());
+    rawData = fillRawData(data, rawData);
+    return predictContributions.calculateContributions(rawData, topN, topBottomN, abs);
   }
 
   /**
