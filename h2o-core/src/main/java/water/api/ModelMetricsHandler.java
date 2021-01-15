@@ -3,6 +3,7 @@ package water.api;
 import hex.*;
 import hex.genmodel.utils.DistributionFamily;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.NotImplementedException;
 import water.*;
 import water.api.schemas3.*;
 import water.exceptions.H2OIllegalArgumentException;
@@ -31,6 +32,9 @@ class ModelMetricsHandler extends Handler {
     public boolean _leaf_node_assignment;
     public int _exemplar_index = -1;
     public String _custom_metric_func;
+    public int _top_n;
+    public int _top_bottom_n;
+    public boolean _abs;
 
     // Fetch all metrics that match model and/or frame
     ModelMetricsList fetch() {
@@ -131,6 +135,15 @@ class ModelMetricsHandler extends Handler {
     @API(help = "Predict the feature contributions - Shapley values (optional, only for DRF, GBM and XGBoost models)", json = false)
     public boolean predict_contributions;
 
+    @API(help = "Predict the feature contributions - Shapley values - return top_n highest", json = false)
+    public int top_n;
+
+    @API(help = "Predict the feature contributions - Shapley values - return top_bottom_n lowest", json = false)
+    public int top_bottom_n;
+
+    @API(help = "Predict the feature contributions - Shapley values - compare as absolute values", json = false)
+    public boolean abs;
+
     @API(help = "Retrieve the feature frequencies on paths in trees in tree-based models (optional, only for GBM, DRF and Isolation Forest)", json = false)
     public boolean feature_frequencies;
 
@@ -162,6 +175,9 @@ class ModelMetricsHandler extends Handler {
       mml._leaf_node_assignment = this.leaf_node_assignment;
       mml._exemplar_index = this.exemplar_index;
       mml._deviances = this.deviances;
+      mml._top_n = this.top_n;
+      mml._top_bottom_n = this.top_bottom_n;
+      mml._abs = this.abs;
 
       if (model_metrics != null) {
         mml._model_metrics = new ModelMetrics[model_metrics.length];
@@ -190,6 +206,7 @@ class ModelMetricsHandler extends Handler {
       this.leaf_node_assignment = mml._leaf_node_assignment;
       this.exemplar_index = mml._exemplar_index;
       this.deviances = mml._deviances;
+      this.top_n = mml._top_n;
 
       if (null != mml._model_metrics) {
         this.model_metrics = new ModelMetricsBaseV3[mml._model_metrics.length];
@@ -398,7 +415,12 @@ class ModelMetricsHandler extends Handler {
             throw new H2OIllegalArgumentException("Model type " + parms._model._parms.algoName() + " doesn't support calculating Feature Contributions.");
           }
           Model.Contributions mc = (Model.Contributions) parms._model;
-          mc.scoreContributions(parms._frame, Key.make(parms._predictions_name), j);
+          if (parms._top_n == 0 && parms._top_bottom_n == 0 && !parms._abs) {
+            mc.scoreContributions(parms._frame, Key.make(parms._predictions_name), j);
+          } else {
+            throw new NotImplementedException("Sorting of shap value is not yet implemented");
+            //mc.scoreContributions(parms._frame, Key.make(parms._predictions_name), parms._top_n, parms._top_bottom_n, parms._abs, j);
+          }
         } else if (s.deep_features_hidden_layer < 0 && s.deep_features_hidden_layer_name == null) {
           parms._model.score(parms._frame, parms._predictions_name, j, false, CFuncRef.from(s.custom_metric_func));
         } else if (s.deep_features_hidden_layer_name != null){

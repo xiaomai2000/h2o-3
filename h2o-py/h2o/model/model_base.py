@@ -173,25 +173,31 @@ class ModelBase(h2o_meta(Keyed)):
                     data={"predict_staged_proba": True})
         return h2o.get_frame(j["predictions_frame"]["name"])
 
-    def predict_contributions(self, test_data):
+    def predict_contributions(self, test_data, top_n=None, top_bottom_n=None, abs_val=False):
         """
         Predict feature contributions - SHAP values on an H2O Model (only DRF, GBM and XGBoost models).
         
         Returned H2OFrame has shape (#rows, #features + 1) - there is a feature contribution column for each input
         feature, the last column is the model bias (same value for each row). The sum of the feature contributions
         and the bias term is equal to the raw prediction of the model. Raw prediction of tree-based model is the sum 
-        of the predictions of the individual trees before before the inverse link function is applied to get the actual
+        of the predictions of the individual trees before the inverse link function is applied to get the actual
         prediction. For Gaussian distribution the sum of the contributions is equal to the model prediction. 
 
         Note: Multinomial classification models are currently not supported.
 
         :param H2OFrame test_data: Data on which to calculate contributions.
-
+        :param top_n: Return only #topN highest contributions + bias.
+        :param top_bottom_n: Return only #topBottomN lowest contributions + bias
+                             If topN and topBottomN are defined together then return array of #topN + #topBottomN + bias
+        :param abs_val: True to compare absolute values of contributions
         :returns: A new H2OFrame made of feature contributions.
         """
         if not isinstance(test_data, h2o.H2OFrame): raise ValueError("test_data must be an instance of H2OFrame")
         j = H2OJob(h2o.api("POST /4/Predictions/models/%s/frames/%s" % (self.model_id, test_data.frame_id),
-                           data={"predict_contributions": True}), "contributions")
+                           data={"predict_contributions": True,
+                                 "top_n": top_n,
+                                 "top_bottom_n": top_bottom_n,
+                                 "abs": abs_val}), "contributions")
         j.poll()
         return h2o.get_frame(j.dest_key)
 
